@@ -8,17 +8,23 @@ A Tkinter desktop app for browsing a car showroom catalog.
 - MySQL Server, running locally or on a reachable host
 
 The app creates the `car_showroom` database and its `cars` table automatically
-when it starts. By default, it connects to `127.0.0.1:3306` as `root` with
-password `admin`.
+when it starts. Configure the MySQL connection in `Trial01/.env` before
+launching the app.
 
-To use different MySQL connection settings, set these environment variables
-before launching the app:
+Create your local environment file from the example:
 
-- `CARSHOWROOM_DB_HOST`
-- `CARSHOWROOM_DB_PORT`
-- `CARSHOWROOM_DB_USER`
-- `CARSHOWROOM_DB_PASSWORD`
-- `CARSHOWROOM_DB_NAME`
+```powershell
+Copy-Item .\Trial01\.env.example .\Trial01\.env
+```
+
+Edit `Trial01/.env` with your MySQL credentials. The file is ignored by Git and
+should contain only local secrets. `Trial01/.env.example` lists the supported
+settings. The JWT settings are reserved for JWT authentication; the current
+desktop login does not use JWT.
+
+The app loads `Trial01/.env` using Python's standard library, so no additional
+package is needed for environment-file support. Environment variables already
+set in Windows take precedence over values in the file.
 
 ## Install
 

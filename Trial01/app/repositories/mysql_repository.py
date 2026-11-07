@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -11,6 +10,7 @@ project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
+from app.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from app.repositories.in_memory_repository import InMemoryRepository
 from app.repositories.in_memory_repository import IMAGE_FILES
 
@@ -21,11 +21,11 @@ class MySqlRepository(InMemoryRepository):
     def __init__(self):
         super().__init__()
         self.config = {
-            "host": os.getenv("CARSHOWROOM_DB_HOST", "127.0.0.1"),
-            "port": int(os.getenv("CARSHOWROOM_DB_PORT", "3306")),
-            "user": os.getenv("CARSHOWROOM_DB_USER", "root"),
-            "password": os.getenv("CARSHOWROOM_DB_PASSWORD", "admin"),
-            "database": os.getenv("CARSHOWROOM_DB_NAME", "car_showroom"),
+            "host": DB_HOST,
+            "port": DB_PORT,
+            "user": DB_USER,
+            "password": DB_PASSWORD,
+            "database": DB_NAME,
         }
         self._create_database()
         self._create_tables()
