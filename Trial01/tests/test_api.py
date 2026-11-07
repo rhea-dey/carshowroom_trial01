@@ -1,10 +1,11 @@
 from app.main import backend
-
+from app.main import CarShowroomBackend
+from app.services.auth_service import AuthService
 
 def test_login_function():
     payload = backend.login("salesrep1", "password123")
     assert payload["success"] is True
-    assert payload["salesRepName"] == "Alice Johnson"
+    assert payload["salesRepName"] == "Rhea Dey"
 
 
 def test_catalog_function():
@@ -39,3 +40,9 @@ def test_lookup_functions():
 
     order_payload = backend.fetch_order("booking-001")
     assert order_payload["bookingId"] == "booking-001"
+
+
+def test_backend_imports():
+    backend = CarShowroomBackend()
+    assert backend is not None
+    assert isinstance(backend.auth_service, AuthService)

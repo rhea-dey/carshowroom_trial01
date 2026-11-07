@@ -8,4 +8,4 @@ and WEBP formats are supported:
 - rlv-minora.png
 - fenty-500.png
 
-The catalog and detail page load these local files automatically. Azure Blob URLs can also be used through AZURE_STORAGE_PUBLIC_BASE_URL.
+The catalog and detail page load these local files automatically.

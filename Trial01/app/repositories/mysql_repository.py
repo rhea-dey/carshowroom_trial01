@@ -13,7 +13,6 @@ if str(project_root) not in sys.path:
 
 from app.repositories.in_memory_repository import InMemoryRepository
 from app.repositories.in_memory_repository import IMAGE_FILES
-from app.services.blob_storage import BlobStorageService
 
 
 class MySqlRepository(InMemoryRepository):
@@ -21,7 +20,6 @@ class MySqlRepository(InMemoryRepository):
 
     def __init__(self):
         super().__init__()
-        self.image_storage = BlobStorageService()
         self.config = {
             "host": os.getenv("CARSHOWROOM_DB_HOST", "127.0.0.1"),
             "port": int(os.getenv("CARSHOWROOM_DB_PORT", "3306")),
@@ -72,16 +70,6 @@ class MySqlRepository(InMemoryRepository):
         cursor.execute(
             "ALTER TABLE cars MODIFY COLUMN description VARCHAR(255) NOT NULL DEFAULT ''"
         )
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS car_images (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                car_id VARCHAR(20) NOT NULL,
-                image_path VARCHAR(500) NOT NULL,
-                FOREIGN KEY (car_id) REFERENCES cars(car_id)
-            )
-            """
-        )
         connection.commit()
         cursor.close()
         connection.close()
@@ -120,9 +108,8 @@ class MySqlRepository(InMemoryRepository):
         cursor = connection.cursor(dictionary=True)
         cursor.execute(
             """
-            SELECT cars.*, car_images.image_path
+            SELECT cars.*
             FROM cars
-            LEFT JOIN car_images ON cars.car_id = car_images.car_id
             ORDER BY cars.id
             """
         )
@@ -156,13 +143,9 @@ class MySqlRepository(InMemoryRepository):
                         "mileage": row["mileage"],
                         "highestSpeed": row["highest_speed"],
                     },
-                    "images": [],
+                    "images": [IMAGE_FILES[row["car_id"]]],
                 },
             )
-            if row["image_path"]:
-                car["images"].append(row["image_path"])
-            elif not car["images"]:
-                car["images"].append(IMAGE_FILES[row["car_id"]])
         return list(catalog.values())
 
     @staticmethod
@@ -183,17 +166,3 @@ class MySqlRepository(InMemoryRepository):
 
     def get_car_detail(self, car_id: str) -> dict[str, Any] | None:
         return next((car for car in self.get_catalog() if car["carId"] == car_id), None)
-
-    def add_image(self, car_id: str, image_path: str) -> None:
-        stored_path = image_path
-        if not image_path.startswith(("http://", "https://")):
-            stored_path = self.image_storage.upload_image(image_path, car_id)
-        connection = self._connect()
-        cursor = connection.cursor()
-        cursor.execute(
-            "INSERT INTO car_images (car_id, image_path) VALUES (%s, %s)",
-            (car_id, stored_path),
-        )
-        connection.commit()
-        cursor.close()
-        connection.close()

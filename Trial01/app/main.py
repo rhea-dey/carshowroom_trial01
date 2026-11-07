@@ -56,10 +56,3 @@ class CarShowroomBackend:
 backend = CarShowroomBackend()
 
 __all__ = ["CarShowroomBackend", "backend"]
-
-def test_login_function():
-    payload = backend.login("salesrep1", "password123")
-    assert payload["success"] is True
-    assert payload["salesRepName"] == "Rhea Dey"
-
-test_login_function()

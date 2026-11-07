@@ -1,4 +1,3 @@
 pytest==9.1.1
 Pillow
 mysql-connector-python
-azure-storage-blob
