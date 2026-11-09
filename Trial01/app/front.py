@@ -42,7 +42,7 @@ root = tk.Tk()
 root.title("Demo App")
 root.attributes('-fullscreen', True)
 
-background_path = Path(__file__).resolve().with_name("background.jpg")
+background_path = Path(__file__).resolve().parent / "images" / "background.jpg"
 bg_image = Image.open(background_path)
 bg_image = bg_image.resize((root.winfo_screenwidth(), root.winfo_screenheight()))
 bg_photo = ImageTk.PhotoImage(bg_image)
