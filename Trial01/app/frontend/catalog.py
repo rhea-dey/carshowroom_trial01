@@ -9,10 +9,11 @@ from urllib.request import urlopen
 
 from PIL import Image, ImageChops, ImageFilter, ImageOps, ImageTk
 
-from app.main import backend
+from app.backend.main import backend
 from app.repositories.in_memory_repository import IMAGE_FILES
 
 
+APP_ROOT = Path(__file__).resolve().parents[1]
 ACCENT = "#35b4ef"
 PANEL = "#fff2b8"
 BORDER = "#111111"
@@ -655,11 +656,11 @@ class CatalogPage(tk.Frame):
         customization_path = CUSTOMIZATION_FILES.get(str(car.get("carId", "")))
         customization_reference = None
         if colour and customization_path:
-            customization_reference = str(Path(__file__).resolve().parent / customization_path)
+            customization_reference = str(APP_ROOT / customization_path)
             image_references.append(customization_reference)
         if local_fallback:
             image_references.append(
-                str(Path(__file__).resolve().parent / local_fallback)
+                str(APP_ROOT / local_fallback)
             )
         image_references.extend(
             str(reference)
@@ -677,7 +678,7 @@ class CatalogPage(tk.Frame):
                 else:
                     path = Path(image_reference)
                     if not path.is_absolute():
-                        path = Path(__file__).resolve().parent / path
+                        path = APP_ROOT / path
                     if not path.exists():
                         for extension in (".png", ".jpg", ".jpeg", ".webp"):
                             alternative = path.with_suffix(extension)

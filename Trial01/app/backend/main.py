@@ -2,15 +2,15 @@
 import sys
 from pathlib import Path
 
-project_root = Path(__file__).resolve().parents[1]
+project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 from app.repositories.in_memory_repository import InMemoryRepository
 from app.repositories.mysql_repository import MySqlRepository
-from app.services.auth_service import AuthService
-from app.services.booking_service import BookingService
-from app.services.catalog_service import CatalogService
+from app.backend.services.auth_service import AuthService
+from app.backend.services.booking_service import BookingService
+from app.backend.services.catalog_service import CatalogService
 
 
 class CarShowroomBackend:

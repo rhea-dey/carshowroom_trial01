@@ -49,11 +49,15 @@ directly instead:
 From the `Trial01` directory, with the virtual environment activated:
 
 ```powershell
-python -m app.front
+python Main.py
 ```
 
 Or, without activating the environment:
 
 ```powershell
-.\.venv\Scripts\python.exe -m app.front
+.\.venv\Scripts\python.exe Main.py
 ```
+
+`Main.py` starts the app. The Tkinter screens are in `app/frontend`, business
+logic is in `app/backend`, and repository implementations remain in
+`app/repositories`.

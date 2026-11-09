@@ -1,6 +1,6 @@
-from app.main import backend
-from app.main import CarShowroomBackend
-from app.services.auth_service import AuthService
+from app.backend.main import backend
+from app.backend.main import CarShowroomBackend
+from app.backend.services.auth_service import AuthService
 
 def test_login_function():
     payload = backend.login("salesrep1", "password123")

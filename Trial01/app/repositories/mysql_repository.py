@@ -10,7 +10,7 @@ project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from app.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+from app.backend.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from app.repositories.in_memory_repository import InMemoryRepository
 from app.repositories.in_memory_repository import IMAGE_FILES
 

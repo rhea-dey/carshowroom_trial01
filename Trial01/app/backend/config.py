@@ -30,7 +30,7 @@ def _load_environment_file(path: Path) -> None:
             os.environ.setdefault(key, value)
 
 
-_load_environment_file(Path(__file__).resolve().parents[1] / ".env")
+_load_environment_file(Path(__file__).resolve().parents[2] / ".env")
 
 APP_NAME = "CarShowRoom API"
 APP_VERSION = "1.0.0"
