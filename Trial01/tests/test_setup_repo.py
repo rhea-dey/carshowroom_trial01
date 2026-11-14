@@ -50,6 +50,13 @@ def _mock_connections(monkeypatch, *connections):
     )
 
 
+def _assert_image_rows(cursor, call_index, table_name, expected_filenames):
+    query, rows = cursor.executemany_calls[call_index]
+    assert f"INSERT INTO {table_name}" in query
+    assert {row[1] for row in rows} == set(expected_filenames)
+    assert all(row[2] == "image/png" and row[3] for row in rows)
+
+
 def test_setup_skips_when_database_and_tables_exist(monkeypatch):
     required_tables = set(setup_repo.TABLE_DEFINITIONS)
     server_connection = FakeConnection(FakeCursor(database_exists=True))
@@ -77,8 +84,34 @@ def test_setup_creates_missing_tables_on_existing_database(monkeypatch):
         if "CREATE TABLE " in query
     ]
     assert set(created_tables) == set(setup_repo.TABLE_DEFINITIONS) - {"cars"}
-    assert len(database_cursor.executemany_calls) == 1
+    assert len(database_cursor.executemany_calls) == 3
     assert "users" in database_cursor.executemany_calls[0][0]
+    _assert_image_rows(
+        database_cursor,
+        1,
+        "car_images",
+        {
+            "panther-gls-130.png",
+            "rockrover-rl.png",
+            "falcon-x.png",
+            "quid-z-300.png",
+            "rlv-minora.png",
+            "fenty-500.png",
+        },
+    )
+    _assert_image_rows(
+        database_cursor,
+        2,
+        "car_custom_images",
+        {
+            "panther-gls-130-custom.png",
+            "rockrover-rl-custom.png",
+            "falcon-x-custom.png",
+            "custom-z-custom.png",
+            "rlv-minora-custom.png",
+            "fenty-500-custom.png",
+        },
+    )
     assert server_connection.closed
     assert database_connection.closed
 
@@ -94,6 +127,32 @@ def test_setup_creates_database_tables_and_seed_data_when_missing(monkeypatch):
     assert "CREATE DATABASE" in server_cursor.executed[1][0]
     assert len(database_cursor.executemany_calls[0][1]) == 6
     assert len(database_cursor.executemany_calls[1][1]) == 2
+    _assert_image_rows(
+        database_cursor,
+        2,
+        "car_images",
+        {
+            "panther-gls-130.png",
+            "rockrover-rl.png",
+            "falcon-x.png",
+            "quid-z-300.png",
+            "rlv-minora.png",
+            "fenty-500.png",
+        },
+    )
+    _assert_image_rows(
+        database_cursor,
+        3,
+        "car_custom_images",
+        {
+            "panther-gls-130-custom.png",
+            "rockrover-rl-custom.png",
+            "falcon-x-custom.png",
+            "custom-z-custom.png",
+            "rlv-minora-custom.png",
+            "fenty-500-custom.png",
+        },
+    )
     assert server_connection.closed
     assert database_connection.closed
     assert database_connection.commits == 1

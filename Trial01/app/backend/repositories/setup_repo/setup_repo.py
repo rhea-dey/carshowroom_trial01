@@ -1,9 +1,30 @@
 """Initialize missing MySQL repository databases and tables."""
 
+import mimetypes
+from pathlib import Path
+
 import mysql.connector
 
 from app.backend.repositories.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
+
+IMAGE_FILES = {
+    "CR-101": "images/panther-gls-130.png",
+    "CR-102": "images/rockrover-rl.png",
+    "CR-103": "images/falcon-x.png",
+    "CR-104": "images/quid-z-300.png",
+    "CR-105": "images/rlv-minora.png",
+    "CR-106": "images/fenty-500.png",
+}
+
+CUSTOM_IMAGE_FILES = {
+    "CR-101": "images/customization/panther-gls-130-custom.png",
+    "CR-102": "images/customization/rockrover-rl-custom.png",
+    "CR-103": "images/customization/falcon-x-custom.png",
+    "CR-104": "images/customization/custom-z-custom.png",
+    "CR-105": "images/customization/rlv-minora-custom.png",
+    "CR-106": "images/customization/fenty-500-custom.png",
+}
 
 TABLE_DEFINITIONS = {
     "cars": """
@@ -57,6 +78,28 @@ TABLE_DEFINITIONS = {
             status VARCHAR(50) NOT NULL,
             confirmation_date VARCHAR(40) NOT NULL,
             FOREIGN KEY (car_id) REFERENCES cars (car_id)
+        )
+    """,
+    "car_images": """
+        CREATE TABLE car_images (
+            image_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            car_id VARCHAR(20) NOT NULL,
+            filename VARCHAR(255) NOT NULL,
+            mime_type VARCHAR(100) NOT NULL,
+            image_data LONGBLOB NOT NULL,
+            UNIQUE KEY uq_car_image (car_id, filename),
+            FOREIGN KEY (car_id) REFERENCES cars (car_id) ON DELETE CASCADE
+        )
+    """,
+    "car_custom_images": """
+        CREATE TABLE car_custom_images (
+            image_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            car_id VARCHAR(20) NOT NULL,
+            filename VARCHAR(255) NOT NULL,
+            mime_type VARCHAR(100) NOT NULL,
+            image_data LONGBLOB NOT NULL,
+            UNIQUE KEY uq_car_custom_image (car_id, filename),
+            FOREIGN KEY (car_id) REFERENCES cars (car_id) ON DELETE CASCADE
         )
     """,
 }
@@ -136,6 +179,31 @@ def _seed_order(cursor) -> None:
     )
 
 
+def _seed_images(cursor, table_name: str, image_files: dict[str, str]) -> None:
+    image_directory = Path(__file__).resolve().parent
+    image_rows = []
+    for car_id, relative_path in image_files.items():
+        image_path = image_directory / relative_path
+        if not image_path.is_file():
+            raise FileNotFoundError(f"Image file not found: {image_path}")
+
+        mime_type, _encoding = mimetypes.guess_type(image_path.name)
+        if mime_type is None:
+            raise ValueError(f"Unsupported image type: {image_path}")
+
+        image_rows.append(
+            (car_id, image_path.name, mime_type, image_path.read_bytes())
+        )
+
+    cursor.executemany(
+        f"""
+        INSERT INTO {table_name} (car_id, filename, mime_type, image_data)
+        VALUES (%s, %s, %s, %s)
+        """,
+        image_rows,
+    )
+
+
 def setup_repository() -> bool:
     """Create missing database objects and seed defaults for newly created tables."""
     server_config = {
@@ -178,6 +246,10 @@ def setup_repository() -> bool:
                 _seed_cart(cursor)
             if "orders" in missing_tables:
                 _seed_order(cursor)
+            if "car_images" in missing_tables:
+                _seed_images(cursor, "car_images", IMAGE_FILES)
+            if "car_custom_images" in missing_tables:
+                _seed_images(cursor, "car_custom_images", CUSTOM_IMAGE_FILES)
 
             connection.commit()
         finally:
