@@ -14,7 +14,7 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 from app.backend.repositories.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-from app.backend.repositories.setup_repo import setup_repository
+from app.backend.repositories.setup_repo.setup_repo import setup_repository
 
 
 IMAGE_FILES = {

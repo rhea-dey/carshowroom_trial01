@@ -1,4 +1,4 @@
-from app.backend.repositories import setup_repo
+from app.backend.repositories.setup_repo import setup_repo
 
 
 class FakeCursor:

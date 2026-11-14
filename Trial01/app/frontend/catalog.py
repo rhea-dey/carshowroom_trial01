@@ -13,7 +13,7 @@ from app.backend.backendservice import backend
 from app.backend.repositories.mysql_repository import IMAGE_FILES
 
 
-APP_ROOT = Path(__file__).resolve().parents[1]
+IMAGE_ROOT = Path(__file__).resolve().parents[1] / "backend" / "repositories" / "setup_repo"
 ACCENT = "#35b4ef"
 PANEL = "#fff2b8"
 BORDER = "#111111"
@@ -656,11 +656,11 @@ class CatalogPage(tk.Frame):
         customization_path = CUSTOMIZATION_FILES.get(str(car.get("carId", "")))
         customization_reference = None
         if colour and customization_path:
-            customization_reference = str(APP_ROOT / customization_path)
+            customization_reference = str(IMAGE_ROOT / customization_path)
             image_references.append(customization_reference)
         if local_fallback:
             image_references.append(
-                str(APP_ROOT / local_fallback)
+                str(IMAGE_ROOT / local_fallback)
             )
         image_references.extend(
             str(reference)
@@ -678,7 +678,7 @@ class CatalogPage(tk.Frame):
                 else:
                     path = Path(image_reference)
                     if not path.is_absolute():
-                        path = APP_ROOT / path
+                        path = IMAGE_ROOT / path
                     if not path.exists():
                         for extension in (".png", ".jpg", ".jpeg", ".webp"):
                             alternative = path.with_suffix(extension)
