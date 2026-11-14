@@ -1,75 +1,61 @@
-from pathlib import Path
 import tkinter as tk
-from tkinter import messagebox
-
-from PIL import Image, ImageTk
+from tkinter import messagebox, ttk
+from PIL import ImageTk
 
 from app.backend.main import backend
-from app.frontend.catalog import open_catalog
+from app.frontend.mainwindow import MainWindow
+#from app.frontend.catalog import open_catalog
+
+class LoginWindow:
+    def __init__(self, root: tk.Tk, icon: ImageTk.PhotoImage) -> None:
+        self.root = root
+        
+        WIDTH, HEIGHT = 460, 400
+        x = (root.winfo_screenwidth() - WIDTH) // 2
+        y = (root.winfo_screenheight() - HEIGHT) // 2
+        root.geometry(f"{WIDTH}x{HEIGHT}+{x}+{y}")
+        root.resizable(False, False)
+        
+        root.iconphoto(True, icon)
+        root.title("Login")
+        root.configure(bg="#101827")
+
+        frame = tk.Frame(root, bg="#ffffff", padx=34, pady=30)
+        frame.place(relx=0.5, rely=0.5, anchor="center", width=380, height=300)
+
+        tk.Label(frame, text="RheaLasya Cars", bg="#ffffff", fg="#172033",font=("Georgia", 21, "bold"),).pack(anchor="w")
+        tk.Label(frame, text="Sign in to continue", bg="#ffffff", fg="#667085",font=("Segoe UI", 10),).pack(anchor="w", pady=(5, 24))
+
+        username_row = tk.Frame(frame, bg="#ffffff")
+        username_row.pack(fill="x", pady=(0, 16))
+        tk.Label(username_row, text="Username", bg="#ffffff", fg="#344054").pack(side="left", padx=(0, 12))
+        self.username = ttk.Entry(username_row)
+        self.username.pack(side="left", fill="x", expand=True, ipady=7)
+
+        password_row = tk.Frame(frame, bg="#ffffff")
+        password_row.pack(fill="x", pady=(0, 16))
+        tk.Label(password_row, text="Password", bg="#ffffff", fg="#344054").pack(side="left", padx=(0, 12))
+        self.password = ttk.Entry(password_row, show="•")
+        self.password.pack(side="left", fill="x", expand=True, ipady=7)
+
+        buttons = tk.Frame(frame, bg="#ffffff")
+        buttons.pack(fill="x")
+        ttk.Button(buttons, text="Sign in", command=self.open_mainwindow).pack(side="left", fill="x", expand=True, ipady=5)
+        ttk.Button(buttons, text="Cancel", command=root.destroy).pack(side="left", fill="x", expand=True, ipady=5, padx=(8, 0))
+
+        self.username.focus_set()
 
 
-def validate_username(username: str) -> bool:
-    return len(username) >= 4 and username.isalnum()
-
-
-def validate_password(password: str) -> bool:
-    return len(password) >= 8
-
-
-def run() -> None:
-    root = tk.Tk()
-    root.title("Demo App")
-    root.attributes("-fullscreen", True)
-
-    background_path = Path(__file__).resolve().parents[1] / "images" / "background.jpg"
-    bg_image = Image.open(background_path)
-    bg_image = bg_image.resize((root.winfo_screenwidth(), root.winfo_screenheight()))
-    bg_photo = ImageTk.PhotoImage(bg_image)
-
-    bg_label = tk.Label(root, image=bg_photo)
-    bg_label.place(x=0, y=0, relwidth=1, relheight=1)
-
-    user_var, pass_var = tk.StringVar(), tk.StringVar()
-    login_btn: tk.Button
-
-    def check_entries(*_args: str) -> None:
-        is_valid = validate_username(user_var.get()) and validate_password(pass_var.get())
-        login_btn.config(state="normal" if is_valid else "disabled")
-
-    def login() -> None:
+    def open_mainwindow(self) -> None:
+        if not self.username.get().strip() or not self.password.get():
+            messagebox.showwarning("Sign in", "Enter a username and password to continue.", parent=self.root)
+            return
+        
         try:
-            backend.login(user_var.get(), pass_var.get())
+            backend.login(self.username.get().strip(), self.password.get())
         except ValueError:
-            messagebox.showerror("Login failed", "Invalid username or password.")
+            messagebox.showerror("Login failed", "Invalid username or password.", parent=self.root)
             return
 
-        for child in root.winfo_children():
-            child.destroy()
-        open_catalog(root)
-
-    user_var.trace_add("write", check_entries)
-    pass_var.trace_add("write", check_entries)
-
-    frame = tk.Frame(root, bg="white", padx=20, pady=20)
-    frame.place(relx=0.5, rely=0.5, anchor="center")
-
-    tk.Label(frame, text="Username", font=("Arial", 18)).pack(pady=5)
-    tk.Label(frame, text="*Must contain at least 4 characters", font=("Arial", 12)).pack(pady=5)
-    tk.Entry(frame, textvariable=user_var, font=("Arial", 16), width=25).pack(pady=10)
-
-    tk.Label(frame, text="Password", font=("Arial", 18)).pack(pady=5)
-    tk.Label(frame, text="*Must contain at least 8 characters", font=("Arial", 12)).pack(pady=5)
-    tk.Entry(frame, textvariable=pass_var, show="*", font=("Arial", 16), width=25).pack(pady=5)
-
-    login_btn = tk.Button(
-        frame,
-        text="Login",
-        command=login,
-        state="disabled",
-        font=("Arial", 18),
-        width=15,
-        height=2,
-    )
-    login_btn.pack(pady=20)
-
-    root.mainloop()
+        #open_catalog(root)                
+        self.main_window = MainWindow(self.root)
