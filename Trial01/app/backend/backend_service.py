@@ -1,4 +1,3 @@
-
 import sys
 from pathlib import Path
 
@@ -51,7 +50,4 @@ class CarShowroomBackend:
     def fetch_order(self, booking_id: str) -> dict[str, object]:
         return self.booking_service.get_order(booking_id)
 
-
-backend = CarShowroomBackend()
-
-__all__ = ["CarShowroomBackend", "backend"]
+backendservice = CarShowroomBackend()

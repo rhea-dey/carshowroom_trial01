@@ -9,7 +9,7 @@ from urllib.request import urlopen
 
 from PIL import Image, ImageChops, ImageFilter, ImageOps, ImageTk
 
-from app.backend.backendservice import backend
+from app.backend.backend_service import backendservice
 from app.backend.repositories.mysql_repository import IMAGE_FILES
 
 
@@ -33,7 +33,7 @@ class CatalogPage(tk.Frame):
     def __init__(self, parent: tk.Misc, on_logout: Callable[[], None] | None = None):
         super().__init__(parent, bg="white")
         self.on_logout = on_logout
-        self.catalog: list[dict[str, Any]] = backend.fetch_catalog()["cars"]
+        self.catalog: list[dict[str, Any]] = backendservice.fetch_catalog()["cars"]
         self.visible_cars = self.catalog[:]
         self.current_car: dict[str, Any] | None = None
         self.selections: list[dict[str, Any]] = []
@@ -462,7 +462,7 @@ class CatalogPage(tk.Frame):
     def _book_selection(self, selection: dict[str, Any]) -> None:
         car = selection["car"]
         try:
-            result = backend.trigger_booking("CUST-1001", str(car["carId"]))
+            result = backendservice.trigger_booking("CUST-1001", str(car["carId"]))
         except ValueError as error:
             messagebox.showerror("Booking failed", str(error))
             return

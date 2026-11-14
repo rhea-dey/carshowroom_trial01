@@ -2,9 +2,8 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from PIL import ImageTk
 
-from app.backend.backendservice import backend
-from app.frontend.mainwindow import MainWindow
-#from app.frontend.catalog import open_catalog
+from app.backend.backend_service import backendservice
+from app.frontend.main_window import MainWindow
 
 class LoginWindow:
     def __init__(self, root: tk.Tk, icon: ImageTk.PhotoImage) -> None:
@@ -52,10 +51,9 @@ class LoginWindow:
             return
         
         try:
-            backend.login(self.username.get().strip(), self.password.get())
+            backendservice.login(self.username.get().strip(), self.password.get())
         except ValueError:
             messagebox.showerror("Login failed", "Invalid username or password.", parent=self.root)
             return
 
-        #open_catalog(root)                
         self.main_window = MainWindow(self.root)
