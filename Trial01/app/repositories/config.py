@@ -1,4 +1,4 @@
-"""Application configuration and environment settings."""
+"""Repository configuration and environment settings."""
 
 import os
 from pathlib import Path
