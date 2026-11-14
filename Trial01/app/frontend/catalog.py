@@ -9,8 +9,8 @@ from urllib.request import urlopen
 
 from PIL import Image, ImageChops, ImageFilter, ImageOps, ImageTk
 
-from app.backend.main import backend
-from app.repositories.in_memory_repository import IMAGE_FILES
+from app.backend.backendservice import backend
+from app.backend.repositories.mysql_repository import IMAGE_FILES
 
 
 APP_ROOT = Path(__file__).resolve().parents[1]

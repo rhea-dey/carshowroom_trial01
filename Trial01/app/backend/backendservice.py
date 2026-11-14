@@ -6,8 +6,7 @@ project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from app.repositories.in_memory_repository import InMemoryRepository
-from app.repositories.mysql_repository import MySqlRepository
+from app.backend.repositories.mysql_repository import MySqlRepository
 from app.backend.services.auth_service import AuthService
 from app.backend.services.booking_service import BookingService
 from app.backend.services.catalog_service import CatalogService
@@ -20,8 +19,8 @@ class CarShowroomBackend:
     HTTP routes, so it can be called directly from a desktop application.
     """
 
-    def __init__(self, repository: InMemoryRepository | None = None):
-        self.repository = repository or MySqlRepository()
+    def __init__(self, repository: MySqlRepository | None = None):
+        self.repository = repository if repository is not None else MySqlRepository()
         self.auth_service = AuthService(self.repository)
         self.catalog_service = CatalogService(self.repository)
         self.booking_service = BookingService(self.repository)

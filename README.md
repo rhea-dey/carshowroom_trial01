@@ -59,5 +59,4 @@ Or, without activating the environment:
 ```
 
 `Main.py` starts the app. The Tkinter screens are in `app/frontend`, business
-logic is in `app/backend`, and repository implementations remain in
-`app/repositories`.
+logic and repository implementations are in `app/backend`.

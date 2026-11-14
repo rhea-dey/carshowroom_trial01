@@ -1,5 +1,5 @@
-from app.backend.main import backend
-from app.backend.main import CarShowroomBackend
+from app.backend.backendservice import backend
+from app.backend.backendservice import CarShowroomBackend
 from app.backend.services.auth_service import AuthService
 
 def test_login_function():
@@ -29,9 +29,15 @@ def test_cart_and_booking_functions():
         },
     )
     assert "cartId" in cart_payload
+    cart = backend.fetch_cart(cart_payload["cartId"])
+    assert cart["customerId"] == "CUST-1001"
+    assert cart["items"][0]["customizations"]["color"] == "Midnight Blue"
 
     booking_payload = backend.trigger_booking("CUST-1001", "CR-101")
     assert "bookingId" in booking_payload
+    order = backend.fetch_order(booking_payload["bookingId"])
+    assert order["carId"] == "CR-101"
+    assert order["status"] == "pending"
 
 
 def test_lookup_functions():

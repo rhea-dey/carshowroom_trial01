@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from app.repositories.in_memory_repository import InMemoryRepository
+from app.backend.repositories.mysql_repository import MySqlRepository
 
 
 class BookingService:
-    def __init__(self, repository: InMemoryRepository):
+    def __init__(self, repository: MySqlRepository):
         self.repository = repository
 
     def add_to_cart(self, customer_id: str, pi_info: dict[str, object]) -> str:
@@ -12,12 +12,12 @@ class BookingService:
             raise ValueError("carId is required")
         if "customizations" not in pi_info:
             raise ValueError("customizations are required")
-        if pi_info["carId"] not in self.repository.cars:
+        if self.repository.get_car_detail(str(pi_info["carId"])) is None:
             raise ValueError("Car not found")
         return self.repository.add_cart_item(customer_id, pi_info)
 
     def trigger_booking(self, customer_id: str, car_id: str) -> str:
-        if car_id not in self.repository.cars:
+        if self.repository.get_car_detail(car_id) is None:
             raise ValueError("Car not found")
         return self.repository.add_booking(customer_id, car_id)
 

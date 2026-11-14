@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from PIL import ImageTk
 
-from app.backend.main import backend
+from app.backend.backendservice import backend
 from app.frontend.mainwindow import MainWindow
 #from app.frontend.catalog import open_catalog
 

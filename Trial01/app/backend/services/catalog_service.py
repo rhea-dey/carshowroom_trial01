@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from app.repositories.in_memory_repository import InMemoryRepository
+from app.backend.repositories.mysql_repository import MySqlRepository
 
 
 class CatalogService:
-    def __init__(self, repository: InMemoryRepository):
+    def __init__(self, repository: MySqlRepository):
         self.repository = repository
 
     def get_catalog(self) -> list[dict[str, object]]:

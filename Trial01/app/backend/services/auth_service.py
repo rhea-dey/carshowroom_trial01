@@ -1,9 +1,9 @@
 
-from app.repositories.in_memory_repository import InMemoryRepository
+from app.backend.repositories.mysql_repository import MySqlRepository
 
 
 class AuthService:
-    def __init__(self, repository: InMemoryRepository):
+    def __init__(self, repository: MySqlRepository):
         self.repository = repository
 
     def login(self, username: str, password: str) -> dict[str, bool | str]:
