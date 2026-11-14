@@ -3,28 +3,16 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import messagebox
 from io import BytesIO
-from pathlib import Path
 from typing import Any, Callable
-from urllib.request import urlopen
 
 from PIL import Image, ImageChops, ImageFilter, ImageOps, ImageTk
 
 from app.backend.backend_service import backendservice
-from app.backend.repositories.mysql_repository import IMAGE_FILES
 
 
-IMAGE_ROOT = Path(__file__).resolve().parents[1] / "backend" / "repositories" / "setup_repo"
 ACCENT = "#35b4ef"
 PANEL = "#fff2b8"
 BORDER = "#111111"
-CUSTOMIZATION_FILES = {
-    "CR-101": "images/customization/panther-gls-130-custom.png",
-    "CR-102": "images/customization/rockrover-rl-custom.png",
-    "CR-103": "images/customization/falcon-x-custom.png",
-    "CR-104": "images/customization/custom-z-custom.png",
-    "CR-105": "images/customization/rlv-minora-custom.png",
-    "CR-106": "images/customization/fenty-500-custom.png",
-}
 
 
 class CatalogPage(tk.Frame):
@@ -650,51 +638,29 @@ class CatalogPage(tk.Frame):
         size: tuple[int, int] = (230, 125),
         colour: str | None = None,
     ) -> ImageTk.PhotoImage | None:
-        images = car.get("images", [])
-        local_fallback = IMAGE_FILES.get(str(car.get("carId", "")))
-        image_references = []
-        customization_path = CUSTOMIZATION_FILES.get(str(car.get("carId", "")))
-        customization_reference = None
-        if colour and customization_path:
-            customization_reference = str(IMAGE_ROOT / customization_path)
-            image_references.append(customization_reference)
-        if local_fallback:
-            image_references.append(
-                str(IMAGE_ROOT / local_fallback)
-            )
-        image_references.extend(
-            str(reference)
-            for reference in images
-            if str(reference) != local_fallback
-        )
+        image_candidates = []
+        if colour and car.get("customImages"):
+            image_candidates.append((car["customImages"][0], True))
+        if car.get("images"):
+            image_candidates.append((car["images"][0], False))
 
         image = None
-        for image_reference in image_references:
-            try:
-                if image_reference.startswith(("http://", "https://")):
-                    with urlopen(image_reference, timeout=5) as response:
-                        candidate = Image.open(BytesIO(response.read()))
-                        candidate.load()
-                else:
-                    path = Path(image_reference)
-                    if not path.is_absolute():
-                        path = IMAGE_ROOT / path
-                    if not path.exists():
-                        for extension in (".png", ".jpg", ".jpeg", ".webp"):
-                            alternative = path.with_suffix(extension)
-                            if alternative.exists():
-                                path = alternative
-                                break
-                    candidate = Image.open(path)
-                    candidate.load()
-                image = candidate
-                break
-            except (OSError, ValueError, TimeoutError):
+        using_custom_image = False
+        for image_data, is_custom_image in image_candidates:
+            if not isinstance(image_data, bytes):
                 continue
-
+            try:
+                candidate = Image.open(BytesIO(image_data))
+                candidate.load()
+            except (OSError, ValueError):
+                continue
+            image = candidate
+            using_custom_image = is_custom_image
+            break
         if image is None:
             return None
-        if colour and customization_reference == image_reference:
+
+        if colour and using_custom_image:
             colours = self._car_colours(car)
             if colour in colours:
                 index = colours.index(colour)
@@ -705,7 +671,7 @@ class CatalogPage(tk.Frame):
                      (index % 2 + 1) * width // 2, (index // 2 + 1) * content_height // 3)
                 )
                 image = self._trim_image_margins(image)
-        if colour and customization_reference == image_reference:
+        if colour and using_custom_image:
             image = ImageOps.contain(image, size, method=Image.Resampling.LANCZOS)
             image = image.filter(ImageFilter.UnsharpMask(radius=1.5, percent=125, threshold=3))
         else:

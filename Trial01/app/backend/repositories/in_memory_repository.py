@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.backend.repositories.setup_repo.setup_repo import load_image_data
+
 
 def _format_rupees(amount: int | float) -> str:
     text = str(int(amount))
@@ -17,17 +19,8 @@ def _format_rupees(amount: int | float) -> str:
     return f"₹{','.join(groups + [last_three])}"
 
 
-IMAGE_FILES = {
-    "CR-101": "images/panther-gls-130.png",
-    "CR-102": "images/rockrover-rl.png",
-    "CR-103": "images/falcon-x.png",
-    "CR-104": "images/quid-z-300.png",
-    "CR-105": "images/rlv-minora.png",
-    "CR-106": "images/fenty-500.png",
-}
-
-
 def _default_cars() -> dict[str, dict[str, Any]]:
+    image_data, custom_image_data = load_image_data()
     cars = [
         ("CR-101", "Panther GLS 130", 12500000, "Sedan Sports Car", "50L-57L", "Blue", "Twin-Turbo V6; 6 Cylinders; Petrol; 350-500 hp", "Length: 4,300-4,600 mm; Width: 1,800-1,900 mm; Height: 1,200-1,300 mm", "Digital Screen; Charging port; Ambient Lighting; Reclinalbe Seats; Ample Trunk Space; Seat Warmers", "7-9 km/l", "300 km/hr"),
         ("CR-102", "RockRover RL", 24000000, "Sedan Sports Car", "45L-50L", "Red", "3.0L twin turbo V6 petrol engine; 7-speed automatic transmission; RWD", "Length: 4,500-4,600 mm; Width: 1,800-1,890 mm; Height: 1,200-1,250 mm", "Digital Screen; Charging port; Ambient Lighting; Reclinalbe Seats; Aerodynamic body kit; ABS (anti-lock braking system)", "11-13 km/l", "310 km/hr"),
@@ -58,7 +51,8 @@ def _default_cars() -> dict[str, dict[str, Any]]:
                 "mileage": mileage,
                 "highestSpeed": highest_speed,
             },
-            "images": [IMAGE_FILES[car_id]],
+            "images": [image_data[car_id]],
+            "customImages": [custom_image_data[car_id]],
         }
         for car_id, model, price, category, fuel_capacity, colour, engine, dimensions, features, mileage, highest_speed in cars
     }

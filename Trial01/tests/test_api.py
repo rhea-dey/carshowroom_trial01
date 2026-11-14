@@ -12,6 +12,14 @@ def test_catalog_function():
     payload = backendservice.fetch_catalog()
     assert "cars" in payload
     assert len(payload["cars"]) > 0
+    assert all(
+        car["images"] and isinstance(car["images"][0], bytes)
+        for car in payload["cars"]
+    )
+    assert all(
+        car["customImages"] and isinstance(car["customImages"][0], bytes)
+        for car in payload["cars"]
+    )
 
 
 def test_cardetail_function():

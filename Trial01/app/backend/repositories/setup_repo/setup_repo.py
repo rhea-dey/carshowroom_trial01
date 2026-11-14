@@ -179,7 +179,7 @@ def _seed_order(cursor) -> None:
     )
 
 
-def _seed_images(cursor, table_name: str, image_files: dict[str, str]) -> None:
+def _load_image_rows(image_files: dict[str, str]) -> list[tuple[str, str, str, bytes]]:
     image_directory = Path(__file__).resolve().parent
     image_rows = []
     for car_id, relative_path in image_files.items():
@@ -194,6 +194,23 @@ def _seed_images(cursor, table_name: str, image_files: dict[str, str]) -> None:
         image_rows.append(
             (car_id, image_path.name, mime_type, image_path.read_bytes())
         )
+    return image_rows
+
+
+def _image_data_by_car(image_files: dict[str, str]) -> dict[str, bytes]:
+    return {
+        car_id: image_data
+        for car_id, _filename, _mime_type, image_data in _load_image_rows(image_files)
+    }
+
+
+def load_image_data() -> tuple[dict[str, bytes], dict[str, bytes]]:
+    """Load image data for the in-memory repository without exposing file paths."""
+    return _image_data_by_car(IMAGE_FILES), _image_data_by_car(CUSTOM_IMAGE_FILES)
+
+
+def _seed_images(cursor, table_name: str, image_files: dict[str, str]) -> None:
+    image_rows = _load_image_rows(image_files)
 
     cursor.executemany(
         f"""

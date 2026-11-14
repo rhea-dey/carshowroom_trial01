@@ -15,4 +15,9 @@ class CatalogService:
         car = self.repository.get_car_detail(car_id)
         if car is None:
             raise ValueError(f"Car {car_id} not found")
-        return {"carId": car["carId"], "details": car["details"], "images": car.get("images", [])}
+        return {
+            "carId": car["carId"],
+            "details": car["details"],
+            "images": car.get("images", []),
+            "customImages": car.get("customImages", []),
+        }

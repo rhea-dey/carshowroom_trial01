@@ -17,16 +17,6 @@ from app.backend.repositories.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PO
 from app.backend.repositories.setup_repo.setup_repo import setup_repository
 
 
-IMAGE_FILES = {
-    "CR-101": "images/panther-gls-130.png",
-    "CR-102": "images/rockrover-rl.png",
-    "CR-103": "images/falcon-x.png",
-    "CR-104": "images/quid-z-300.png",
-    "CR-105": "images/rlv-minora.png",
-    "CR-106": "images/fenty-500.png",
-}
-
-
 class MySqlRepository:
     """MySQL-backed repository for showroom data."""
 
@@ -69,6 +59,12 @@ class MySqlRepository:
                 """
             )
             rows = cursor.fetchall()
+            cursor.execute("SELECT car_id, image_data FROM car_images")
+            images = {row["car_id"]: row["image_data"] for row in cursor.fetchall()}
+            cursor.execute("SELECT car_id, image_data FROM car_custom_images")
+            custom_images = {
+                row["car_id"]: row["image_data"] for row in cursor.fetchall()
+            }
         finally:
             cursor.close()
             connection.close()
@@ -99,7 +95,12 @@ class MySqlRepository:
                         "mileage": row["mileage"],
                         "highestSpeed": row["highest_speed"],
                     },
-                    "images": [IMAGE_FILES[row["car_id"]]],
+                    "images": [images[row["car_id"]]] if row["car_id"] in images else [],
+                    "customImages": (
+                        [custom_images[row["car_id"]]]
+                        if row["car_id"] in custom_images
+                        else []
+                    ),
                 },
             )
         return list(catalog.values())
